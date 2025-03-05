@@ -2,37 +2,35 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from prophet import Prophet
 
-# 步驟 1: 準備數據
+#Sample data
 data = {
     'ds': ['2023-12-01', '2024-07-01', '2024-08-01', '2024-09-01',
            '2024-10-01', '2024-11-01', '2025-01-01'],  # 日期
     'y': [5000, 8000, 7500, 7000, 6500, 6800, 9000]  # 支付金額
 }
 
-# 將數據轉換為 DataFrame
 df = pd.DataFrame(data)
 
-# 步驟 2: 初始化並訓練 Prophet 模型
-model = Prophet(yearly_seasonality=True)  # 启用每年的季節性
-model.fit(df)  # 擬合數據
 
-# 步驟 3: 創建未來12個月的日期
+model = Prophet(yearly_seasonality=True) 
+model.fit(df)  
+
+
 future = model.make_future_dataframe(periods=12, freq='M')  # 預測未來12個月
 
-# 步驟 4: 預測未來數據
+
 forecast = model.predict(future)
 
-# 步驟 5: 查看預測結果（未來12個月的預測）
+
 forecast_result = forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(12)  # 最新12個月預測結果
 print(forecast_result)
 
-# 步驟 6: 可視化預測結果
+
 fig = model.plot(forecast)
-plt.title("預測支付金額")
+plt.title("predict payment")
 plt.show()
 
-# 步驟 7: 可選：如果您有假設，根據季節性或特定月份進行調整
-# 例如，如果您知道7月和1月的高峰，可以根據業務背景進行加權調整
-weights = {'12月': 0.3, '1月': 0.4, '7月': 0.3}  # 假設的權重，您可以根據實際情況進行修改
+# Optional: add weight to each month
+weights = {'Dec': 0.3, 'Jan': 0.4, 'Jul': 0.3}  
 predicted_values = {month: forecast_result['yhat'][i] * weights[month] for i, month in enumerate(forecast_result['ds'].dt.month_name())}
 print(predicted_values)
